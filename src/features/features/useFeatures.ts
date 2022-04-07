@@ -1,5 +1,4 @@
 import { useQuery } from '@apollo/client'
-import React from 'react'
 import { FeatureType } from '../../components/Types'
 import { FEATURES } from './features.graphql'
 import { FEATURE } from './features.graphql'

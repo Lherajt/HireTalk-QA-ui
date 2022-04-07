@@ -3,7 +3,7 @@ import MainNavbar from './MainNavbar'
 import FeaturesList from './FeaturesList'
 import Feature from './Feature'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import GraphqlExample from './graphqlExample'
+
 
 export default function MainComponent() {
   return (
@@ -14,8 +14,6 @@ export default function MainComponent() {
         <Route path='/features/:id' element={<Feature />} />
 
       </Routes>
-
-      {/* <GraphqlExample /> */}
     </BrowserRouter>
   )
 }
