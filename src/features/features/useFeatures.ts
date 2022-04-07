@@ -7,17 +7,21 @@ import { useAddFeature, useRemoveFeature, useUpdateFeature } from './features.ho
 
 export type FeatureInput = Partial<FeatureType>
 
-type FeatureData = {
+type FeaturesData = {
   features: FeatureType[]
 }
 
+type FeatureData = {
+  feature: FeatureType
+}
+
 export const useFeatures = (id?: string) => {
-  const { loading, error, data } = useQuery<FeatureData>(FEATURES)
+  const { loading, error, data } = useQuery<FeaturesData>(FEATURES)
   const {
     loading: featureLoading,
     error: featureError,
-    data: feature,
-  } = useQuery<FeatureType>(FEATURE, {
+    data: featureData,
+  } = useQuery<FeatureData>(FEATURE, {
     variables: {
       id:id||"",
     },
@@ -30,7 +34,7 @@ export const useFeatures = (id?: string) => {
   return {
     featureLoading,
     featureError,
-    feature,
+    feature: featureData?.feature,
     loading,
     error,
     features: data?.features || [],

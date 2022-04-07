@@ -12,7 +12,12 @@ export const Feature: React.FC = () => {
 
   const { feature } = useFeatures(id)
 
-  console.log({ feature })
+  const featureCopy = {...feature}
+
+
+  console.log('feature: ', feature)
+  console.log('id: ', featureCopy.id)
+
 
 
   return (
