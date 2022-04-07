@@ -16,17 +16,16 @@ export const FEATURES = gql`
 `
 
 export const FEATURE = gql`
-  query {
-  feature(feature: "1003") {
+  query ($id: String!){
+  feature(feature: $id) {
     id
     name
     description
-   	testCases{
-      id
-      name
-      description
-    }
-
+   	testCases {
+       id
+       description
+        name
+     }
   }
 }
 

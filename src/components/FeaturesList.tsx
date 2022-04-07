@@ -54,7 +54,7 @@ export const FeaturesList: React.FC = () => {
       })
     }
   }
-  console.log({feature})
+  // console.log({feature})
   if (loading) return <p>Loading...</p>
   if (error) return <p>Error :(</p>
 
