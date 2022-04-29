@@ -1,46 +1,51 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Button, Modal, InputGroup, FormControl } from 'react-bootstrap'
 import { useFeatures } from '../features/features/useFeatures'
 import { FeatureType } from './Types'
 
-
 export type FeatureInput = Partial<FeatureType>
-
 
 interface Props {
   modalToggle: () => void
   show: boolean
+  id?: number
 }
 
 export const AddFeatureModal: React.FC<Props> = (props) => {
+  const { modalToggle, show, id } = props
 
-  const { modalToggle,
-     show, 
-     } = props
+  const { loading, error, addFeature, updateFeature, feature: passedFeature } = useFeatures(id?.toString())
+  const [feature, setFeature] = React.useReducer(
+    (state: FeatureInput, update: FeatureInput) => ({ ...state, ...update }),
+    {},
+  )
 
-     const [feature, setFeature] = React.useReducer(
-      (state: FeatureInput, update: FeatureInput) => ({ ...state, ...update }),
-      {},
-    )
-
-  const { loading, 
-    error, 
-    addFeature, 
-    updateFeature, 
-  } = useFeatures()
+  useEffect(() => {
+    if (id) {
+      setFeature({ ...passedFeature })
+    } else {
+      setFeature({ name: '', description: '', id: undefined, testCases: [] })
+    }
+  }, [id, passedFeature])
 
   const saveFeature = () => {
-    if (feature.id) {
+    if (id) {
       updateFeature({
         variables: {
-          id: feature.id,
-          feature,
+          feature: {
+            id: id,
+            description: feature.description,
+            name: feature.name,
+          },
         },
       })
     } else {
       addFeature({
         variables: {
-          feature,
+          feature: {
+            name: feature.name,
+            description: feature.description,
+          },
         },
       })
     }
@@ -52,7 +57,7 @@ export const AddFeatureModal: React.FC<Props> = (props) => {
   return (
     <Modal show={show} onHide={modalToggle}>
       <Modal.Header closeButton>
-        <Modal.Title>Add Feature</Modal.Title>
+        <Modal.Title>{id ? 'Update' : 'Add'} Feature</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <InputGroup size='sm' className='mb-3'>
@@ -60,7 +65,7 @@ export const AddFeatureModal: React.FC<Props> = (props) => {
           <FormControl
             aria-label='Small'
             aria-describedby='inputGroup-sizing-sm'
-            value={feature?.name} 
+            value={feature?.name}
             onChange={(e) => setFeature({ name: e.currentTarget.value })}
           />
         </InputGroup>
@@ -69,7 +74,7 @@ export const AddFeatureModal: React.FC<Props> = (props) => {
           <FormControl
             aria-label='Small'
             aria-describedby='inputGroup-sizing-sm'
-            value={feature?.description} 
+            value={feature?.description}
             onChange={(e) => setFeature({ description: e.currentTarget.value })}
           />
         </InputGroup>
@@ -82,7 +87,7 @@ export const AddFeatureModal: React.FC<Props> = (props) => {
             saveFeature()
           }}
         >
-          Add
+          {id ? 'Update' : 'Add'}
         </Button>
       </Modal.Footer>
     </Modal>
