@@ -3,6 +3,8 @@ import FeatureCard from './FeatureCard'
 import AddFeatureModal from './AddFeatureModal'
 import { Button } from 'react-bootstrap'
 import { useFeatures } from '../features/features/useFeatures'
+import { Error } from './Error'
+import { Loading } from './Loading'
 
 export const FeaturesList: React.FC = () => {
   const [show, setShow] = useState(false)
@@ -10,10 +12,7 @@ export const FeaturesList: React.FC = () => {
 
   const modalToggle = () => setShow(!show)
 
-  const { loading, error, features } = useFeatures()
-
-  if (loading) return <p>Loading...</p>
-  if (error) return <p>Error :( {JSON.stringify(error)}</p>
+  const {features } = useFeatures()
 
   return (
     <div className='container mt-5'>
@@ -23,6 +22,7 @@ export const FeaturesList: React.FC = () => {
           setSelectedFeatureId(undefined)
           setShow(true)
         }}
+        className='p-3 my-4 shadow'
       >
         Add Feature
       </Button>
@@ -38,7 +38,10 @@ export const FeaturesList: React.FC = () => {
         ))}
       </div>
 
-      <AddFeatureModal modalToggle={modalToggle} show={show} id={selectedFeatureId} />
+      <AddFeatureModal modalToggle={modalToggle} id={selectedFeatureId} show={show} />
+
+      <Error />
+      <Loading />
     </div>
   )
 }

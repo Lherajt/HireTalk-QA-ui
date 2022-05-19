@@ -2,19 +2,21 @@ import React, { useEffect } from 'react'
 import { Button, Modal, InputGroup, FormControl } from 'react-bootstrap'
 import { useFeatures } from '../features/features/useFeatures'
 import { FeatureType } from './Types'
+import { Error } from './Error'
+import { Loading } from './Loading'
 
 export type FeatureInput = Partial<FeatureType>
 
 interface Props {
   modalToggle: () => void
-  show: boolean
   id?: number
+  show: boolean
 }
 
 export const AddFeatureModal: React.FC<Props> = (props) => {
-  const { modalToggle, show, id } = props
+  const { modalToggle, id, show } = props
 
-  const { loading, error, addFeature, updateFeature, feature: passedFeature } = useFeatures(id?.toString())
+  const { addFeature, updateFeature, feature: passedFeature } = useFeatures(id?.toString())
   const [feature, setFeature] = React.useReducer(
     (state: FeatureInput, update: FeatureInput) => ({ ...state, ...update }),
     {},
@@ -51,11 +53,11 @@ export const AddFeatureModal: React.FC<Props> = (props) => {
     }
   }
 
-  if (loading) return <p>Loading...</p>
-  if (error) return <p>Error :(</p>
-
   return (
-    <Modal show={show} onHide={modalToggle}>
+    <Modal
+      onHide={modalToggle}
+      show={show}
+    >
       <Modal.Header closeButton>
         <Modal.Title>{id ? 'Update' : 'Add'} Feature</Modal.Title>
       </Modal.Header>
@@ -90,6 +92,8 @@ export const AddFeatureModal: React.FC<Props> = (props) => {
           {id ? 'Update' : 'Add'}
         </Button>
       </Modal.Footer>
+      <Error featureId={id}/>
+       <Loading featureId={id}/>
     </Modal>
   )
 }

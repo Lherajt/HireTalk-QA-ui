@@ -2,8 +2,10 @@ import React from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { useParams } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
-import { useFeatures } from '../features/features/useFeatures'
+import { useTestCases } from '../testCases/useTestCases'
 import { TestCase } from './Types'
+import { Error } from './Error'
+import { Loading } from './Loading'
 
 export type TestCaseInput = Partial<TestCase>
 
@@ -12,16 +14,12 @@ export const Feature: React.FC = () => {
 
   const navigate = useNavigate()
   const {
-    addTestCaseLoading,
-    addTestCaseError,
     addTestCase,
     testCases,
     updateTestCases,
-    updateTestCaseError,
-    updateTestCaseLoading,
-  } = useFeatures(id)
+  } = useTestCases(id)
 
-  let selectedCase: any = testCaseId ? testCases?.find((tc) => tc.id === Number(testCaseId)) : {}
+  let selectedCase: any = testCaseId ? testCases?.find((tc: any) => tc.id === Number(testCaseId)) : {}
   const { __typename, feature, ...selectedCaseReady } = selectedCase
 
   const [testCase, setTestCase] = React.useReducer(
@@ -45,16 +43,11 @@ export const Feature: React.FC = () => {
     }
   }
 
-  if (addTestCaseLoading) return <p>Loading...</p>
-  if (addTestCaseError) return <p>Error :(</p>
-  if (updateTestCaseLoading) return <p>Loading...</p>
-  if (updateTestCaseError) return <p>Error :(, {updateTestCaseError}</p>
-
   return (
-    <>
-      <h1>{testCaseId ? 'Update' : 'Add'} test case:</h1>
-      <Form>
-        <Form.Group className='mb-3'>
+    <div className='px-5 container'>
+      <h1 className='text-center py-5'>{testCaseId ? 'Update' : 'Add'} test case</h1>
+      <Form className='row'>
+        <Form.Group className='mb-3 col-lg-6'>
           <Form.Label>Name:</Form.Label>
           <Form.Control
             type='text'
@@ -63,34 +56,43 @@ export const Feature: React.FC = () => {
             onChange={(e) => setTestCase({ name: e.currentTarget.value })}
           />
         </Form.Group>
-        <Form.Group className='mb-3'>
+        <Form.Group className='mb-3 col-lg-6'>
           <Form.Label>Duration:</Form.Label>
-          <Form.Control
-            type='number'
-            placeholder='Duration'
-            value={Number(testCase?.duration)}
-            onChange={(e) => setTestCase({ duration: Number(e.currentTarget.value) })}
-          />
+          <div className='d-flex'>
+            <Form.Control
+              type='number'
+              placeholder='Duration'
+              value={Number(testCase?.duration)}
+              onChange={(e) => setTestCase({ duration: Number(e.currentTarget.value) })}
+              className='w-75'
+            />
+            <Form.Select className='w-25' aria-label='Default select example'>
+              <option>Select time unit</option>
+              <option value='sec'>sec</option>
+              <option value='min'>min</option>
+              <option value='h'>h</option>
+            </Form.Select>
+          </div>
         </Form.Group>
-        <Form.Group className='mb-3'>
+        <Form.Group className='mb-3 col-lg-6'>
           <Form.Label>Expected result:</Form.Label>
           <Form.Control
-            type='text'
+            as="textarea"
             placeholder='Expected result'
             value={testCase?.expectedResult}
             onChange={(e) => setTestCase({ expectedResult: e.currentTarget.value })}
           />
         </Form.Group>
-        <Form.Group className='mb-3'>
+        <Form.Group className='mb-3 col-lg-6'>
           <Form.Label>Description:</Form.Label>
           <Form.Control
-            type='text'
+            as="textarea"
             placeholder='Description'
             value={testCase?.description}
             onChange={(e) => setTestCase({ description: e.currentTarget.value })}
           />
         </Form.Group>
-        <Form.Group className='mb-3'>
+        <Form.Group className='mb-3 col-lg-6'>
           <Form.Label>Operating Systems:</Form.Label>
           <Form.Control
             type='text'
@@ -99,7 +101,7 @@ export const Feature: React.FC = () => {
             onChange={(e) => setTestCase({ operatingSystems: e.currentTarget.value })}
           />
         </Form.Group>
-        <Form.Group className='mb-3'>
+        <Form.Group className='mb-3 col-lg-6'>
           <Form.Label>Prerequisites:</Form.Label>
           <Form.Control
             type='text'
@@ -118,8 +120,10 @@ export const Feature: React.FC = () => {
         >
           {testCaseId ? 'Update' : 'Add'}
         </Button>
+        <Error testCaseId={testCaseId}/>
+       <Loading testCaseId={testCaseId}/>
       </Form>
-    </>
+    </div>
   )
 }
 

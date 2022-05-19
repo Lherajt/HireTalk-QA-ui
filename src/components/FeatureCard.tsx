@@ -3,6 +3,8 @@ import { Card, Button } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { FeatureType } from './Types'
 import { useFeatures } from '../features/features/useFeatures'
+import { Error } from './Error'
+import { Loading } from './Loading'
 
 type FeatureCardProps = {
   feature: FeatureType
@@ -16,12 +18,13 @@ export const FeatureCard: React.FC<FeatureCardProps> = (props) => {
   const { removeFeature } = useFeatures()
 
   return (
-    <Card style={{ width: '18rem' }} className={'col-md-4 col-sm-6 col-xs-12'}>
+    <Card  className={'col-lg-4 col-md-6 col-xs-12 feature-card shadow'}>
       <Card.Body>
-        <Card.Title>Feature: {feature.name}</Card.Title>
+        <Card.Title className="text-center mb-4">{feature.name}</Card.Title>
         <Card.Text>Description: {feature.description}</Card.Text>
+        <Card.Text>Test Cases: {feature.testCases.length}</Card.Text>
 
-        <Button variant='primary'>
+        <Button variant='primary' className="m-1">
           <Link className='text-light text-decoration-none' to={`/features/${feature.id}`}>
             Open
           </Link>{' '}
@@ -30,6 +33,7 @@ export const FeatureCard: React.FC<FeatureCardProps> = (props) => {
           onClick={() => {
             removeFeature({ variables: { id: `${feature.id}` } })
           }}
+          className="m-1"
         >
           Delete
         </Button>
@@ -38,10 +42,13 @@ export const FeatureCard: React.FC<FeatureCardProps> = (props) => {
             setSelectedFeatureId(feature.id)
             setShow(true)
           }}
+          className="m-1"
         >
           Edit
         </Button>
       </Card.Body>
+      <Error featureId={feature.id}/>
+       <Loading featureId={feature.id}/>
     </Card>
   )
 }

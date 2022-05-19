@@ -2,7 +2,10 @@ import React from 'react'
 import { Card, Button } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { TestCase } from './Types'
-import { useFeatures } from '../features/features/useFeatures'
+import { useTestCases } from '../testCases/useTestCases'
+import { Error } from './Error'
+import { Loading } from './Loading'
+
 
 type TestCaseCardProps = {
   testCase: TestCase
@@ -12,35 +15,33 @@ type TestCaseCardProps = {
 export const TestCaseCard: React.FC<TestCaseCardProps> = (props) => {
   const { testCase, featureId } = props
 
-  const { removeTestCase } = useFeatures()
+  const { removeTestCase } = useTestCases()
 
   return (
-    <Card style={{ width: '18rem' }} className={'col-md-4 col-sm-6 col-xs-12'}>
+    <Card className={'col-lg-4 col-md-6 col-xs-12 testCaseCard shadow'}>
       <Card.Body>
-        <Card.Title>{testCase.name}</Card.Title>
+        <Card.Title className="text-center mb-4">{testCase.name}</Card.Title>
         <Card.Text>description: {testCase.description}</Card.Text>
 
-        <Button variant='primary'>
-          {/* <Link 
-          className='text-light text-decoration-none' to={`/features/${feature.id}`}
-          > */}
+        <Button variant='primary' className="m-1">
           Open
-          {/* </Link>{' '} */}
         </Button>
         <Button
           onClick={() => {
-            console.log('id', testCase.id)
             removeTestCase({ variables: { testCaseId: `${testCase.id}` } })
           }}
+          className="m-1"
         >
           Delete
         </Button>
-        <Button variant='primary'>
+        <Button variant='primary' className="m-1">
           <Link className='text-light text-decoration-none' to={`/features/${featureId}/addTestCase/${testCase?.id}`}>
             Edit
           </Link>{' '}
         </Button>
       </Card.Body>
+      <Error testCaseId={testCase.id}/>
+       <Loading testCaseId={testCase.id}/>
     </Card>
   )
 }
