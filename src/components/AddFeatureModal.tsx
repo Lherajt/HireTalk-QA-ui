@@ -1,99 +1,78 @@
-import React, { useEffect } from 'react'
-import { Button, Modal, InputGroup, FormControl } from 'react-bootstrap'
+import { Form, Formik } from 'formik'
+import React, { useContext } from 'react'
+import { Button, Modal, CloseButton } from 'react-bootstrap'
+import * as Yup from 'yup'
+import { FeatureContext } from '../App'
 import { useFeatures } from '../features/features/useFeatures'
-import { FeatureType } from './Types'
 import { Error } from './Error'
+import { InputField } from './InputField'
 import { Loading } from './Loading'
+import { FeatureType } from './Types'
 
 export type FeatureInput = Partial<FeatureType>
 
 interface Props {
-  modalToggle: () => void
-  id?: number
-  show: boolean
+  // id?: number
 }
 
-export const AddFeatureModal: React.FC<Props> = (props) => {
-  const { modalToggle, id, show } = props
+export const AddFeatureModal: React.FC<Props> = () => {
+  const { modalToggle, show, selectedId } = useContext(FeatureContext)
 
-  const { addFeature, updateFeature, feature: passedFeature } = useFeatures(id?.toString())
-  const [feature, setFeature] = React.useReducer(
-    (state: FeatureInput, update: FeatureInput) => ({ ...state, ...update }),
-    {},
-  )
+  const { addFeature, updateFeature, feature, featureError, featureLoading } = useFeatures(selectedId)
 
-  useEffect(() => {
-    if (id) {
-      setFeature({ ...passedFeature })
+  const validate = Yup.object({
+    name: Yup.string().required('Name is required'),
+    description: Yup.string().required('Description is required'),
+  })
+
+  const saveFeature = (values: any) => {
+    if (selectedId) {
+      updateFeature({ variables: { feature: { ...values, id: selectedId } } })
     } else {
-      setFeature({ name: '', description: '', id: undefined, testCases: [] })
-    }
-  }, [id, passedFeature])
-
-  const saveFeature = () => {
-    if (id) {
-      updateFeature({
-        variables: {
-          feature: {
-            id: id,
-            description: feature.description,
-            name: feature.name,
-          },
-        },
-      })
-    } else {
-      addFeature({
-        variables: {
-          feature: {
-            name: feature.name,
-            description: feature.description,
-          },
-        },
-      })
+      addFeature({ variables: { feature: values } })
     }
   }
 
   return (
-    <Modal
-      onHide={modalToggle}
-      show={show}
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>{id ? 'Update' : 'Add'} Feature</Modal.Title>
+    <Modal onHide={modalToggle} show={show}>
+      <Modal.Header>
+        <Modal.Title>{selectedId ? 'Update' : 'Add'} Feature</Modal.Title>
+        <CloseButton onClick={modalToggle} variant='white' />
       </Modal.Header>
       <Modal.Body>
-        <InputGroup size='sm' className='mb-3'>
-          <InputGroup.Text id='inputGroup-sizing-sm'>Name:</InputGroup.Text>
-          <FormControl
-            aria-label='Small'
-            aria-describedby='inputGroup-sizing-sm'
-            value={feature?.name}
-            onChange={(e) => setFeature({ name: e.currentTarget.value })}
-          />
-        </InputGroup>
-        <InputGroup size='sm' className='mb-3'>
-          <InputGroup.Text id='inputGroup-sizing-sm'>Description:</InputGroup.Text>
-          <FormControl
-            aria-label='Small'
-            aria-describedby='inputGroup-sizing-sm'
-            value={feature?.description}
-            onChange={(e) => setFeature({ description: e.currentTarget.value })}
-          />
-        </InputGroup>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button
-          variant='primary'
-          onClick={() => {
+        <Formik
+          enableReinitialize={true}
+          initialValues={{
+            description: selectedId ? feature?.description : '',
+            name: selectedId ? feature?.name : '',
+          }}
+          validationSchema={validate}
+          onSubmit={(values) => {
+            saveFeature(values)
             modalToggle()
-            saveFeature()
           }}
         >
-          {id ? 'Update' : 'Add'}
-        </Button>
-      </Modal.Footer>
-      <Error featureId={id}/>
-       <Loading featureId={id}/>
+          {(formik) => (
+            <div>
+              <Form>
+                <InputField label='Name' name='name' type='text' wrapperClasses='h2' active='focused' />
+                <InputField
+                  label='Description'
+                  name='description'
+                  type='textarea'
+                  wrapperClasses='h2'
+                  active='active'
+                />
+                <Button type='submit' className='py-2 px-4 my-4 shadow'>
+                  {selectedId ? 'Update' : 'Add'}
+                </Button>
+              </Form>
+            </div>
+          )}
+        </Formik>
+      </Modal.Body>
+      {featureError && <Error>{featureError}</Error>}
+      {featureLoading && <Loading />}
     </Modal>
   )
 }

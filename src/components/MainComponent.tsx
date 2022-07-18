@@ -1,10 +1,10 @@
 import React from 'react'
-import MainNavbar from './MainNavbar'
-import FeaturesList from './FeaturesList'
-import Feature from './Feature'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import AddFeatureModal from './AddFeatureModal'
 import AddTestCase from './AddTestCase'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-
+import FeaturesList from './FeaturesList'
+import MainNavbar from './MainNavbar'
+import TestCasesAccordion from './TestCasesAccordion'
 
 export default function MainComponent() {
   return (
@@ -12,14 +12,10 @@ export default function MainComponent() {
       <MainNavbar />
       <Routes>
         <Route path='/' element={<FeaturesList />} />
-        <Route path='/features/:id' element={<Feature />} />
+        <Route path='/features/accordion/:id' element={<TestCasesAccordion />} />
         <Route path='/features/:id/addTestCase' element={<AddTestCase />} />
-        <Route path='/features/:id/addTestCase/:testCaseId' element={<AddTestCase />} />
-        {/* <Route path='/features/:id/addTestCase/:testCaseId?' element={<AddTestCase />} /> */}
-
-
-
       </Routes>
+      <AddFeatureModal />
     </BrowserRouter>
   )
 }

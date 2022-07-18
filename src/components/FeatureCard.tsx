@@ -1,6 +1,6 @@
 import React from 'react'
-import { Card, Button } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
+import { Card, Button, Alert, CloseButton } from 'react-bootstrap'
+import { useNavigate } from 'react-router-dom'
 import { FeatureType } from './Types'
 import { useFeatures } from '../features/features/useFeatures'
 import { Error } from './Error'
@@ -8,47 +8,60 @@ import { Loading } from './Loading'
 
 type FeatureCardProps = {
   feature: FeatureType
-  setShow: React.Dispatch<React.SetStateAction<boolean>>
-  setSelectedFeatureId: React.Dispatch<React.SetStateAction<number | undefined>>
 }
 
 export const FeatureCard: React.FC<FeatureCardProps> = (props) => {
-  const { feature, setShow, setSelectedFeatureId } = props
+  const { feature } = props
+  const navigate = useNavigate()
+  const { removeFeature, featureError, featureLoading } = useFeatures(feature.id?.toString())
+  const [show, setShow] = React.useState(false)
 
-  const { removeFeature } = useFeatures()
+  if (show) {
+    return (
+      <Alert className='bg-transparent text-white' onClose={() => setShow(false)} dismissible>
+        <Alert.Heading>Are you sure?</Alert.Heading>
+        <CloseButton variant='white' onClick={() => setShow(false)} />
 
-  return (
-    <Card  className={'col-lg-4 col-md-6 col-xs-12 feature-card shadow'}>
-      <Card.Body>
-        <Card.Title className="text-center mb-4">{feature.name}</Card.Title>
-        <Card.Text>Description: {feature.description}</Card.Text>
-        <Card.Text>Test Cases: {feature.testCases.length}</Card.Text>
-
-        <Button variant='primary' className="m-1">
-          <Link className='text-light text-decoration-none' to={`/features/${feature.id}`}>
-            Open
-          </Link>{' '}
-        </Button>
         <Button
+          className='z-index-1 delete-btn position-absolute btn-danger'
           onClick={() => {
             removeFeature({ variables: { id: `${feature.id}` } })
           }}
-          className="m-1"
         >
           Delete
         </Button>
-        <Button
-          onClick={() => {
-            setSelectedFeatureId(feature.id)
-            setShow(true)
-          }}
-          className="m-1"
-        >
-          Edit
-        </Button>
+      </Alert>
+    )
+  }
+
+  return (
+    <Card className='h-100 position-relative p-0 feature-card'>
+      <Card.Body
+        onClick={() => {
+          navigate(`/features/accordion/${feature.id}`)
+        }}
+      >
+        <Card.Title>Feature: {feature.name}</Card.Title>
+        <Card.Text className='m-0'>Description: {feature.description}</Card.Text>
+
+        {feature.testCases.length === 0 ? (
+          <>
+            <Button
+              className='z-index-1 delete-btn position-absolute'
+              onClick={(e) => {
+                e.nativeEvent.stopImmediatePropagation()
+                e.stopPropagation()
+                setShow(true)
+              }}
+            >
+              Delete Feature
+            </Button>
+          </>
+        ) : null}
       </Card.Body>
-      <Error featureId={feature.id}/>
-       <Loading featureId={feature.id}/>
+
+      {featureError && <Error>{featureError}</Error>}
+      {featureLoading && <Loading />}
     </Card>
   )
 }
